@@ -69,8 +69,8 @@ resource "kubernetes_service" "app" {
 
   depends_on = [kubernetes_deployment.app]
 }
-
-resource "kubernetes_ingress" "app" {
+/*
+resource "kubernetes_ingress_v1" "app" {
   metadata {
     name      = "owncloud-lb"
     namespace = "fargate-node"
@@ -85,17 +85,26 @@ resource "kubernetes_ingress" "app" {
   }
 
   spec {
-      backend {
-        service_name = "owncloud-service"
-        service_port = 80
+      default_backend {
+        service{
+            name = "owncloud-service"
+            port{
+                number = 80
+            }
+        }
+        
       }
     rule {
       http {
         path {
           path = "/"
           backend {
-            service_name = "owncloud-service"
-            service_port = 80
+            service{
+                name = "owncloud-service"
+                port{
+                    number = 80
+                }
+            }
           }
         }
       }
@@ -104,3 +113,4 @@ resource "kubernetes_ingress" "app" {
 
   depends_on = [kubernetes_service.app]
 }
+*/
