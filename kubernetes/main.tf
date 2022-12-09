@@ -13,7 +13,7 @@ provider "kubernetes" {
   host                   = data.aws_eks_cluster.cluster.endpoint
   cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
   token                  = data.aws_eks_cluster_auth.cluster.token
-  load_config_file       = false
+  #load_config_file       = false
 }
 
 resource "aws_iam_policy" "ALB-policy" {
@@ -90,7 +90,7 @@ resource "aws_iam_policy" "ALB-policy" {
         "elasticloadbalancing:SetIpAddressType",
         "elasticloadbalancing:SetSecurityGroups",
         "elasticloadbalancing:SetSubnets",
-        "elasticloadbalancing:SetWebACL"
+        "elasticloadbalancing:SetWebAcl"
       ],
       "Resource": "*"
     },
@@ -132,6 +132,28 @@ resource "aws_iam_policy" "ALB-policy" {
       "Effect": "Allow",
       "Action": [
         "waf:GetWebACL"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "wafv2:GetWebACL",
+        "wafv2:GetWebACLForResource",
+        "wafv2:AssociateWebACL",
+        "wafv2:DisassociateWebACL"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "shield:DescribeProtection",
+        "shield:GetSubscriptionState",
+        "shield:DeleteProtection",
+        "shield:CreateProtection",
+        "shield:DescribeSubscription",
+        "shield:ListProtections"
       ],
       "Resource": "*"
     }
@@ -237,7 +259,7 @@ resource "kubernetes_deployment" "ingress" {
     namespace = "kube-system"
     labels    = {
       "app.kubernetes.io/name"       = "alb-ingress-controller"
-      "app.kubernetes.io/version"    = "v1.1.6"
+      "app.kubernetes.io/version"    = "v2.4.4"
       "app.kubernetes.io/managed-by" = "terraform"
     }
   }
@@ -255,7 +277,7 @@ resource "kubernetes_deployment" "ingress" {
       metadata {
         labels = {
           "app.kubernetes.io/name"    = "alb-ingress-controller"
-          "app.kubernetes.io/version" = "v1.1.6"
+          "app.kubernetes.io/version" = "v2.4.4"
         }
       }
 
@@ -267,7 +289,7 @@ resource "kubernetes_deployment" "ingress" {
 
         container {
           name              = "alb-ingress-controller"
-          image             = "docker.io/amazon/aws-alb-ingress-controller:v1.1.6"
+          image             = "docker.io/amazon/aws-alb-ingress-controller:v2.4.4"
           image_pull_policy = "Always"
           
           args = [
